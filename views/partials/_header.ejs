@@ -25,14 +25,17 @@
           type="text"
           name="username"
           placeholder="Username"
-          style="width: 225px; margin-right: 10px;"
+          style="width: 200px; margin-right: 10px;"
         />
-        <button type="submit" class="btn btn-primary">Login</button>
+        <button type="submit" class="btn btn-outline-dark">Login</button>
       </form>
     <% } else { %>
-      <label for="username" style="margin-right: 10px;">
-        Logged in as: <%= username %>
-      </label>
+      <form class="form-inline position-absolute-right" action="/logout" method="POST">
+        <label for="username" style="margin-right: 10px;">
+          Logged in as: <%= username %>
+        </label>
+        <button type="submit" class="btn btn-outline-dark">Logout</button>
+      </form>
     <% } %>
   </nav>
 
