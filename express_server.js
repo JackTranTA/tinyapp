@@ -10,6 +10,15 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+function generateRandomString() {
+  const chars ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let string = ' ';
+  for (let i = 0; i < 6; i++){
+    string += chars.charAt(Math.floor(Math.random() * chars.length));
+  };
+  return string;
+}
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -21,6 +30,11 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
+});
+
+app.post("/urls", (req, res) => {
+  console.log(req.body);
+  res.send("Ok");
 });
 
 app.get("/urls/new", (req, res) => {
