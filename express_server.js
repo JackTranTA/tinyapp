@@ -62,6 +62,15 @@ app.get("/register", (req, res) => {
   res.render("user_registration", templateVars);
 });
 
+app.get("/login", (req, res) => {
+  const user_id = req.cookies['user_id'];
+  const templateVars = {
+    users: users,
+    user: users[user_id],
+    user_id: user_id
+  };
+  res.render("user_login", templateVars);
+});
 
 app.get("/urls/new", (req, res) => {
   const user_id = req.cookies['user_id'];
@@ -93,7 +102,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send('Do not leave the email or password field empty.');
   };
   for (const user in users) {
-    if(users[user].email === email) {
+    if(users[user].email === req.body.email) {
       return res.status(400).send('An account already exist with this email.');
     }
   };
