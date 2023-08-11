@@ -55,7 +55,6 @@ app.get("/urls", (req, res) => {
 app.get("/register", (req, res) => {
   const user_id = req.cookies['user_id'];
   const templateVars = {
-    users: users,
     user: users[user_id],
     user_id: user_id
   };
@@ -65,7 +64,6 @@ app.get("/register", (req, res) => {
 app.get("/login", (req, res) => {
   const user_id = req.cookies['user_id'];
   const templateVars = {
-    users: users,
     user: users[user_id],
     user_id: user_id
   };
@@ -113,18 +111,26 @@ app.post("/register", (req, res) => {
     password: req.body.password
   };
   res.cookie('user_id', user_id);
-  console.log('user_id-----', users);
   res.redirect("/urls");
 });
 
 app.post("/login", (req, res) => {
-  res.cookie('user_id', req.body.user_id);
-  res.redirect("/urls");
+  for (const user in users) {
+    if(users[user].email === req.body.email) {
+      if(users[user].password === req.body.password) {
+        res.cookie("user_id", users[user].id);
+        return res.redirect("/urls");
+      } else {
+        return res.status(403).send('The password entered is incorrect.');
+      }
+    };
+  };
+  return res.status(403).send('This account does not exist.');
 });
 
 app.post("/logout", (req, res) => {
   res.clearCookie('user_id');
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 app.post("/urls", (req, res) => {
