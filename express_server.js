@@ -17,6 +17,10 @@ app.use(cookieSession({
   keys: ['DSG23dgs', 'sdg26ssd']
 }))
 
+// -------------------- Helpers --------------------//
+
+const { getUserByEmail } = require('./helpers.js');
+
 // -------------------- Data --------------------//
 
 const urlDatabase = {
@@ -59,15 +63,6 @@ function urlsForUser(id) {
     }
   }
   return urls;
-};
-
-const getUserByEmail = (email) => {
-  for (const user in urlDatabase) {
-    if (urlDatabase[user].email === email) {
-      return urlDatabase[user];
-    }
-  }
-  return undefined;
 };
 
 //-------------------- GET Routes --------------------//
@@ -157,7 +152,7 @@ app.get("/login", (req, res) => {
 //-------------------- POST Routes --------------------//
 // Post request to handle user registration
 app.post("/register", (req, res) => {
-  const user = getUserByEmail(req.body.email);
+  const user = getUserByEmail(req.body.email, users);
   if (!req.body.email || !req.body.password) {
     return res.status(400).send('Do not leave the email or password field empty.');
   };
@@ -177,7 +172,7 @@ app.post("/register", (req, res) => {
 
 // Post request to handle user login
 app.post("/login", (req, res) => {
-  const user = getUserByEmail(req.body.email);
+  const user = getUserByEmail(req.body.email, users);
   if(user && bcrypt.compareSync(req.body.password, users[user].password)) {
     req.session.user_id = users[user].id;
     return res.redirect("/urls");
