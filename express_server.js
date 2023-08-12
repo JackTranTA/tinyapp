@@ -14,7 +14,7 @@ const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
 app.use(cookieSession({
   name: 'session',
-  keys: ['DSG23dgs', 'sdg26ssd']
+  secret: ['sleepy-black-cat']
 }))
 
 // -------------------- Helpers --------------------//
@@ -68,11 +68,11 @@ function urlsForUser(id) {
 //-------------------- GET Routes --------------------//
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+  if(req.session.user_id) {
+    res.redirect("/urls");
+  } else {
+    res.redirect("/login");
+  }
 });
 
 // Route for rendering main page
@@ -100,11 +100,11 @@ app.get("/urls/new", (req, res) => {
 // Route for rendering specific URL pages which allow editing long URL
 app.get("/urls/:id", (req, res) => {
   if(!urlDatabase[req.params.id]) {
-    res.status(404).send('This short URL does not exist.');
+    res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
   } else if(!req.session.user_id) {
-    res.status(403).send('Users must login to see URL page.');
+    res.status(403).send('Users must login to see URL page. <a href="/login">Login</a>');
   } else if (req.session.user_id !== urlDatabase[req.params.id].userID){
-    res.status(401).send('This URL does not belong to this account.');
+    res.status(401).send('This URL does not belong to this account. <a href="/urls">Main page</a>');
   } else {
     const templateVars = {
       user: users[req.session.user_id],
@@ -118,7 +118,7 @@ app.get("/urls/:id", (req, res) => {
 // Route for redirecting to specific URL page from short URL link
 app.get("/u/:id", (req, res) => {
   if(!urlDatabase[req.params.id]) {
-    res.status(404).send('This short URL does not exist.');
+    res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
   } else {
     const longURL = urlDatabase[req.params.id].longURL;
     res.redirect(longURL);
@@ -154,10 +154,10 @@ app.get("/login", (req, res) => {
 app.post("/register", (req, res) => {
   const user = getUserByEmail(req.body.email, users);
   if (!req.body.email || !req.body.password) {
-    return res.status(400).send('Do not leave the email or password field empty.');
+    return res.status(400).send('Do not leave the email or password field empty. <a href="/register">Register</a>');
   };
   if(user) {
-    return res.status(400).send('An account already exist with this email.');
+    return res.status(400).send('An account already exist with this email. <a href="/register">Register</a>');
   };
   const user_id = generateRandomString();
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
@@ -177,7 +177,7 @@ app.post("/login", (req, res) => {
     req.session.user_id = users[user].id;
     return res.redirect("/urls");
   } else {
-    return res.status(400).send('The email or password entered is incorrect.');
+    return res.status(400).send('The email or password entered is incorrect. <a href="/login">Login</a>');
   }
 });
 
@@ -190,7 +190,7 @@ app.post("/logout", (req, res) => {
 // Post request to handle URL shortening
 app.post("/urls", (req, res) => {
   if(!req.session.user_id) {
-    res.send('Users must login to shorten URL.');
+    res.status(403).send('Users must login to shorten URL. <a href="/login">Login</a>');
   } else {
     const shortURL = generateRandomString();
     urlDatabase[shortURL] = {
@@ -204,11 +204,11 @@ app.post("/urls", (req, res) => {
 // Post request to handle URL editing
 app.post("/urls/:id", (req, res) => {
   if(!urlDatabase[req.params.id]) {
-    res.status(404).send('This short URL does not exist.');
+    res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
   } else if(req.session.user_id) {
-    res.status(403).send('Users must login to edit URL.');
+    res.status(403).send('Users must login to edit URL. <a href="/login">Login</a>');
   } else if (req.session.user_id !== urlDatabase[req.params.id].userID){
-    res.status(401).send('This URL does not belong to this account.');
+    res.status(401).send('This URL does not belong to this account. <a href="/urls">Main page</a>');
   } else {
     urlDatabase[req.params.id].longURL = req.body.longURL;
     res.redirect("/urls");
@@ -218,11 +218,11 @@ app.post("/urls/:id", (req, res) => {
 // Post request to handle URL deletion
 app.post("/urls/:id/delete", (req, res) => {
   if(!urlDatabase[req.params.id]) {
-    res.status(404).send('This short URL does not exist.');
+    res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
   } else if(!req.session.user_id) {
-    res.status(403).send('Users must login to edit URL.');
+    res.status(403).send('Users must login to edit URL. <a href="/login">Login</a>');
   } else if (req.session.user_id !== urlDatabase[req.params.id].userID){
-    res.status(401).send('This URL does not belong to this account.');
+    res.status(401).send('This URL does not belong to this account. <a href="/urls">Main page</a>');
   } else {
     delete urlDatabase[req.params.id];
     res.redirect("/urls");
