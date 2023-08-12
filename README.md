@@ -6,10 +6,10 @@ This TinyApp is a project by Jack Tran from Lighthouse Labs curriculum for evalu
 ## Final Product
 
 !["Screenshot of user login page"](https://github.com/Sleepyfatblackcat/tinyapp/blob/master/docs/login-page.png)
-!["Screenshot of user registration page"]([#](https://github.com/Sleepyfatblackcat/tinyapp/blob/master/docs/register-page.png))
-!["Screenshot of user owned URLs"]([#](https://github.com/Sleepyfatblackcat/tinyapp/blob/master/docs/MyURLs-page.png))
+!["Screenshot of user registration page"](https://github.com/Sleepyfatblackcat/tinyapp/blob/master/docs/register-page.png)
+!["Screenshot of user owned URLs"](https://github.com/Sleepyfatblackcat/tinyapp/blob/master/docs/MyURLs-page.png)
 !["Screenshot of new shortURL link creation"](https://github.com/Sleepyfatblackcat/tinyapp/blob/master/docs/newURL-page.png)
-!["Screenshot of editing longURL of link"]([#](https://github.com/Sleepyfatblackcat/tinyapp/blob/master/docs/editURL-page.png))
+!["Screenshot of editing longURL of link"](https://github.com/Sleepyfatblackcat/tinyapp/blob/master/docs/editURL-page.png)
 
 ## Dependencies
 
