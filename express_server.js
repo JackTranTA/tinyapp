@@ -77,60 +77,56 @@ app.get("/", (req, res) => {
 
 // Route for rendering main page
 app.get("/urls", (req, res) => {
-  const userUrls = urlsForUser(req.session.user_id);
-  const templateVars = { 
-    urls: userUrls,
-    user: users[req.session.user_id],
-  };
+  const user = req.session.user_id;
+  const userUrls = urlsForUser(user);
+  const templateVars = { urls: userUrls, user: users[user] };
   res.render("urls_index", templateVars);
 });
 
 // Route for rendering page to add new URLs
 app.get("/urls/new", (req, res) => {
-  if(!req.session.user_id) {
-    res.redirect("/login");
-  } else {
-    const templateVars = {
-      user: users[req.session.user_id]
-    };
+  const user = req.session.user_id;
+  if(user) {
+    const templateVars = { user: users[user] };
     res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login");
   }
 });
 
 // Route for rendering specific URL pages which allow editing long URL
 app.get("/urls/:id", (req, res) => {
-  if(!urlDatabase[req.params.id]) {
+  const user = req.session.user_id;
+  const shortURL = req.params.id;
+  const templateVars = { user: users[user], id: shortURL, longURL: urlDatabase[shortURL].longURL };
+
+  if(!urlDatabase[shortURL]) {
     res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
-  } else if(!req.session.user_id) {
+  } else if(!user) {
     res.status(403).send('Users must login to see URL page. <a href="/login">Login</a>');
-  } else if (req.session.user_id !== urlDatabase[req.params.id].userID){
+  } else if (user !== urlDatabase[shortURL].userID){
     res.status(401).send('This URL does not belong to this account. <a href="/urls">Main page</a>');
   } else {
-    const templateVars = {
-      user: users[req.session.user_id],
-      id: req.params.id,
-      longURL: urlDatabase[req.params.id].longURL
-    };
     res.render("urls_show", templateVars);
   }
 });
 
 // Route for redirecting to specific URL page from short URL link
 app.get("/u/:id", (req, res) => {
-  if(!urlDatabase[req.params.id]) {
+  const shortURL = req.params.id;
+  if(!urlDatabase[shortURL]) {
     res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
   } else {
-    const longURL = urlDatabase[req.params.id].longURL;
+    const longURL = urlDatabase[shortURL].longURL;
     res.redirect(longURL);
   }
 });
 
 // Route for rendering user registrtion page
 app.get("/register", (req, res) => {
-  const templateVars = {
-    user: users[req.session.user_id]
-  };
-  if(req.session.user_id) {
+  const user = req.session.user_id;
+  const templateVars = { user: users[user] };
+  if(user) {
     res.redirect("/urls");
   } else {
     res.render("user_registration", templateVars);
@@ -139,10 +135,9 @@ app.get("/register", (req, res) => {
 
 // Route for rendering user login page
 app.get("/login", (req, res) => {
-  const templateVars = {
-    user: users[req.session.user_id]
-  };
-  if(req.session.user_id) {
+  const user = req.session.user_id;
+  const templateVars = { user: users[user] };
+  if(user) {
     res.redirect("/urls");
   } else {
     res.render("user_login", templateVars);
