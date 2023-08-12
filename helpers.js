@@ -8,18 +8,18 @@ const getUserByEmail = (email, database) => {
   return undefined;
 };
 
-function generateRandomString() {
-  const chars ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+const generateRandomString = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let string = '';
-  for (let i = 0; i < 6; i++){
+  for (let i = 0; i < 6; i++) {
     string += chars.charAt(Math.floor(Math.random() * chars.length));
-  };
+  }
   return string;
 };
 
-function urlsForUser(id, database) {
+const urlsForUser = (id, database) => {
   const shortURLs = Object.keys(database);
-  urls = {};
+  const urls = {};
   for (const shortURL of shortURLs) {
     if (database[shortURL].userID === id) {
       urls[shortURL] = database[shortURL];

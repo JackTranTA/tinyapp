@@ -15,7 +15,7 @@ const bcrypt = require("bcryptjs");
 app.use(cookieSession({
   name: 'session',
   keys: ['sleepy-black-cat']
-}))
+}));
 
 // -------------------- Helpers --------------------//
 
@@ -49,7 +49,7 @@ const users = {
 //-------------------- GET Routes --------------------//
 
 app.get("/", (req, res) => {
-  if(req.session.user_id) {
+  if (req.session.user_id) {
     res.redirect("/urls");
   } else {
     res.redirect("/login");
@@ -67,7 +67,7 @@ app.get("/urls", (req, res) => {
 // Route for rendering page to add new URLs
 app.get("/urls/new", (req, res) => {
   const user = req.session.user_id;
-  if(user) {
+  if (user) {
     const templateVars = { user: users[user] };
     res.render("urls_new", templateVars);
   } else {
@@ -80,11 +80,11 @@ app.get("/urls/:id", (req, res) => {
   const user = req.session.user_id;
   const shortURL = req.params.id;
 
-  if(!urlDatabase[shortURL]) {
+  if (!urlDatabase[shortURL]) {
     res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
-  } else if(!user) {
+  } else if (!user) {
     res.status(403).send('Users must login to see URL page. <a href="/login">Login</a>');
-  } else if (user !== urlDatabase[shortURL].userID){
+  } else if (user !== urlDatabase[shortURL].userID) {
     res.status(401).send('This URL does not belong to this account. <a href="/urls">Main page</a>');
   } else {
     const templateVars = { user: users[user], id: shortURL, longURL: urlDatabase[shortURL].longURL };
@@ -95,7 +95,7 @@ app.get("/urls/:id", (req, res) => {
 // Route for redirecting to specific URL page from short URL link
 app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
-  if(!urlDatabase[shortURL]) {
+  if (!urlDatabase[shortURL]) {
     res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
   } else {
     const longURL = urlDatabase[shortURL].longURL;
@@ -107,7 +107,7 @@ app.get("/u/:id", (req, res) => {
 app.get("/login", (req, res) => {
   const user = req.session.user_id;
   const templateVars = { user: users[user] };
-  if(user) {
+  if (user) {
     res.redirect("/urls");
   } else {
     res.render("user_login", templateVars);
@@ -118,7 +118,7 @@ app.get("/login", (req, res) => {
 app.get("/register", (req, res) => {
   const user = req.session.user_id;
   const templateVars = { user: users[user] };
-  if(user) {
+  if (user) {
     res.redirect("/urls");
   } else {
     res.render("user_registration", templateVars);
@@ -132,11 +132,11 @@ app.post("/urls", (req, res) => {
   const userID = req.session.user_id;
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
-  if(!userID) {
+  if (!userID) {
     res.status(403).send('Users must login to shorten URL. <a href="/login">Login</a>');
   } else {
     urlDatabase[shortURL] = { longURL, userID };
-    res.redirect("/urls/"+shortURL);
+    res.redirect("/urls/" + shortURL);
   }
 });
 
@@ -145,13 +145,13 @@ app.post("/urls/:id", (req, res) => {
   const user = req.session.user_id;
   const longURL = req.body.longURL;
   const shortURL = req.params.id;
-  if(!user) {
+  if (!user) {
     res.status(403).send('Users must login to edit URL. <a href="/login">Login</a>');
-  };
-  if(!urlDatabase[shortURL]) {
+  }
+  if (!urlDatabase[shortURL]) {
     res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
-  };
-  if (user !== urlDatabase[shortURL].userID){
+  }
+  if (user !== urlDatabase[shortURL].userID) {
     res.status(401).send('This URL does not belong to this account. <a href="/urls">Main page</a>');
   } else {
     urlDatabase[shortURL].longURL = longURL;
@@ -163,13 +163,13 @@ app.post("/urls/:id", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   const user = req.session.user_id;
   const shortURL = req.params.id;
-  if(!user) {
+  if (!user) {
     res.status(403).send('Users must login to edit URL. <a href="/login">Login</a>');
-  };
-  if(!urlDatabase[shortURL]) {
+  }
+  if (!urlDatabase[shortURL]) {
     res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
-  };
-  if (user !== urlDatabase[shortURL].userID){
+  }
+  if (user !== urlDatabase[shortURL].userID) {
     res.status(401).send('This URL does not belong to this account. <a href="/urls">Main page</a>');
   } else {
     delete urlDatabase[shortURL];
@@ -184,13 +184,13 @@ app.post("/login", (req, res) => {
   const user = getUserByEmail(email, users);
   if (!email || !password) {
     res.status(400).send('Do not leave the email or password field empty. <a href="/login">Login</a>');
-  };
-  if(user && bcrypt.compareSync(password, user.password)) {
+  }
+  if (user && bcrypt.compareSync(password, user.password)) {
     req.session.user_id = user.id;
     res.redirect("/urls");
   } else {
     res.status(400).send('The email or password entered is incorrect. <a href="/login">Login</a>');
-  };
+  }
 });
 
 // Post request to handle user registration
@@ -200,8 +200,8 @@ app.post("/register", (req, res) => {
   const user = getUserByEmail(email, users);
   if (!email || !password) {
     res.status(400).send('Do not leave the email or password field empty. <a href="/register">Register</a>');
-  };
-  if(!user) {
+  }
+  if (!user) {
     const id = generateRandomString();
     const hashedPassword = bcrypt.hashSync(password, 10);
     users[id] = { id, email, password: hashedPassword };
@@ -209,12 +209,12 @@ app.post("/register", (req, res) => {
     res.redirect("/urls");
   } else {
     res.status(400).send('An account already exist with this email. <a href="/register">Register</a>');
-  };
+  }
 });
 
 // Post request to handle user logout
 app.post("/logout", (req, res) => {
-  req.session = null
+  req.session = null;
   res.redirect("/login");
 });
 
