@@ -19,7 +19,7 @@ app.use(cookieSession({
 
 // -------------------- Helpers --------------------//
 
-const { getUserByEmail } = require('./helpers.js');
+const { getUserByEmail, urlsForUser, generateRandomString  } = require('./helpers.js');
 
 // -------------------- Data --------------------//
 
@@ -46,25 +46,6 @@ const users = {
     password: "321",
   }};
 
-function generateRandomString() {
-  const chars ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let string = '';
-  for (let i = 0; i < 6; i++){
-    string += chars.charAt(Math.floor(Math.random() * chars.length));
-  };
-  return string;
-};
-
-function urlsForUser(id) {
-  urls = {};
-  for (const shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
-      urls[shortURL] = urlDatabase[shortURL];
-    }
-  }
-  return urls;
-};
-
 //-------------------- GET Routes --------------------//
 
 app.get("/", (req, res) => {
@@ -78,7 +59,7 @@ app.get("/", (req, res) => {
 // Route for rendering main page
 app.get("/urls", (req, res) => {
   const user = req.session.user_id;
-  const userUrls = urlsForUser(user);
+  const userUrls = urlsForUser(user, urlDatabase);
   const templateVars = { urls: userUrls, user: users[user] };
   res.render("urls_index", templateVars);
 });
@@ -201,7 +182,6 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const user = getUserByEmail(email, users);
-  console.log(user);
   if (!email || !password) {
     res.status(400).send('Do not leave the email or password field empty. <a href="/login">Login</a>');
   };
@@ -239,5 +219,5 @@ app.post("/logout", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`TinyApp listening on port ${PORT}!`);
 });
