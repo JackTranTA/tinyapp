@@ -40,16 +40,25 @@ app.get("/", (req, res) => {
 // Route for rendering main page
 app.get("/urls", (req, res) => {
   const user = req.session.user_id;
-  const userUrls = urlsForUser(user, urlDatabase);
-  const templateVars = { urls: userUrls, user: users[user] };
-  res.render("urls_index", templateVars);
+  if (user) {
+    const userUrls = urlsForUser(user, urlDatabase);
+    const templateVars = {
+      urls: userUrls,
+      user: users[user]
+    };
+    res.render("urls_index", templateVars);
+  } else {
+    res.status(403).send('Users must login to see My URLs page. <a href="/login">Login</a>');
+  }
 });
 
 // Route for rendering page to add new URLs
 app.get("/urls/new", (req, res) => {
   const user = req.session.user_id;
   if (user) {
-    const templateVars = { user: users[user] };
+    const templateVars = {
+      user: users[user]
+    };
     res.render("urls_new", templateVars);
   } else {
     res.redirect("/login");
@@ -68,7 +77,11 @@ app.get("/urls/:id", (req, res) => {
   } else if (user !== urlDatabase[shortURL].userID) {
     res.status(401).send('This URL does not belong to this account. <a href="/urls">Main page</a>');
   } else {
-    const templateVars = { user: users[user], id: shortURL, longURL: urlDatabase[shortURL].longURL };
+    const templateVars = {
+      user: users[user],
+      id: shortURL,
+      longURL: urlDatabase[shortURL].longURL
+    };
     res.render("urls_show", templateVars);
   }
 });
@@ -87,7 +100,9 @@ app.get("/u/:id", (req, res) => {
 // Route for rendering user login page
 app.get("/login", (req, res) => {
   const user = req.session.user_id;
-  const templateVars = { user: users[user] };
+  const templateVars = {
+    user: users[user]
+  };
   if (user) {
     res.redirect("/urls");
   } else {
@@ -98,7 +113,9 @@ app.get("/login", (req, res) => {
 // Route for rendering user registrtion page
 app.get("/register", (req, res) => {
   const user = req.session.user_id;
-  const templateVars = { user: users[user] };
+  const templateVars = {
+    user: users[user]
+  };
   if (user) {
     res.redirect("/urls");
   } else {
@@ -113,6 +130,9 @@ app.post("/urls", (req, res) => {
   const userID = req.session.user_id;
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
+  if (!longURL) {
+    res.status(400).send('Do not leave the long URL field empty. <a href="/login">Login</a>');
+  }
   if (!userID) {
     res.status(403).send('Users must login to shorten URL. <a href="/login">Login</a>');
   } else {
