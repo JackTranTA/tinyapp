@@ -149,6 +149,9 @@ app.put("/urls/:id", (req, res) => {
   if (!user) {
     res.status(403).send('Users must login to edit URL. <a href="/login">Login</a>');
   }
+  if (!longURL) {
+    res.status(400).send('Do not leave the long URL field empty. <a href="/login">Login</a>');
+  }
   if (!urlDatabase[shortURL]) {
     res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
   }
