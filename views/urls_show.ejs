@@ -22,8 +22,8 @@
         </p>
       </div>
       <div class="card-footer text-muted"></div>
-      <form class="form-center" action="/urls/<%= id %>" method="POST">
-        <label for="longURL">New URL:</label>
+      <form class="form-center" method="POST" action="/urls/<%= id %>?_method=PUT"">
+        <label for="longURL">Long URL:</label>
         <input
           class="form-center"
           type="text"

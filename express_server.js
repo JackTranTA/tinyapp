@@ -5,8 +5,10 @@ const PORT = 8080; // default port 8080
 //-------------------- Dependencies --------------------//
 
 const express = require("express");
+var methodOverride = require('method-override');
 const app = express();
 app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
 app.set("view engine", "ejs");
 
 //-------------------- Encryption --------------------//
@@ -120,7 +122,7 @@ app.post("/urls", (req, res) => {
 });
 
 // Post request to handle URL editing
-app.post("/urls/:id", (req, res) => {
+app.put("/urls/:id", (req, res) => {
   const user = req.session.user_id;
   const longURL = req.body.longURL;
   const shortURL = req.params.id;
@@ -139,7 +141,7 @@ app.post("/urls/:id", (req, res) => {
 });
 
 // Post request to handle URL deletion
-app.post("/urls/:id/delete", (req, res) => {
+app.delete("/urls/:id", (req, res) => {
   const user = req.session.user_id;
   const shortURL = req.params.id;
   if (!user) {
