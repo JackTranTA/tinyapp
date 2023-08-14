@@ -46,9 +46,9 @@ app.get("/urls", (req, res) => {
       urls: userUrls,
       user: users[user]
     };
-    res.render("urls_index", templateVars);
+    return res.render("urls_index", templateVars);
   } else {
-    res.status(403).send('Users must login to see My URLs page. <a href="/login">Login</a>');
+    return res.status(403).send('Users must login to see My URLs page. <a href="/login">Login</a>');
   }
 });
 
@@ -71,18 +71,20 @@ app.get("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
 
   if (!urlDatabase[shortURL]) {
-    res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
-  } else if (!user) {
-    res.status(403).send('Users must login to see URL page. <a href="/login">Login</a>');
-  } else if (user !== urlDatabase[shortURL].userID) {
-    res.status(401).send('This URL does not belong to this account. <a href="/urls">Main page</a>');
+    return res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
+  }
+  if (!user) {
+    return res.status(403).send('Users must login to see URL page. <a href="/login">Login</a>');
+  }
+  if (user !== urlDatabase[shortURL].userID) {
+    return res.status(401).send('This URL does not belong to this account. <a href="/urls">Main page</a>');
   } else {
     const templateVars = {
       user: users[user],
       id: shortURL,
       longURL: urlDatabase[shortURL].longURL
     };
-    res.render("urls_show", templateVars);
+    return res.render("urls_show", templateVars);
   }
 });
 
@@ -90,10 +92,10 @@ app.get("/urls/:id", (req, res) => {
 app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
   if (!urlDatabase[shortURL]) {
-    res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
+    return res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
   } else {
     const longURL = urlDatabase[shortURL].longURL;
-    res.redirect(longURL);
+    return res.redirect(longURL);
   }
 });
 
@@ -104,9 +106,9 @@ app.get("/login", (req, res) => {
     user: users[user]
   };
   if (user) {
-    res.redirect("/urls");
+    return res.redirect("/urls");
   } else {
-    res.render("user_login", templateVars);
+    return res.render("user_login", templateVars);
   }
 });
 
@@ -117,9 +119,9 @@ app.get("/register", (req, res) => {
     user: users[user]
   };
   if (user) {
-    res.redirect("/urls");
+    return res.redirect("/urls");
   } else {
-    res.render("user_registration", templateVars);
+    return res.render("user_registration", templateVars);
   }
 });
 
@@ -131,13 +133,13 @@ app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
   if (!longURL) {
-    res.status(400).send('Do not leave the long URL field empty. <a href="/login">Login</a>');
+    return res.status(400).send('Do not leave the long URL field empty. <a href="/login">Login</a>');
   }
   if (!userID) {
-    res.status(403).send('Users must login to shorten URL. <a href="/login">Login</a>');
+    return res.status(403).send('Users must login to shorten URL. <a href="/login">Login</a>');
   } else {
     urlDatabase[shortURL] = { longURL, userID };
-    res.redirect("/urls/" + shortURL);
+    return res.redirect("/urls/" + shortURL);
   }
 });
 
@@ -147,19 +149,19 @@ app.put("/urls/:id", (req, res) => {
   const longURL = req.body.longURL;
   const shortURL = req.params.id;
   if (!user) {
-    res.status(403).send('Users must login to edit URL. <a href="/login">Login</a>');
+    return res.status(403).send('Users must login to edit URL. <a href="/login">Login</a>');
   }
   if (!longURL) {
-    res.status(400).send('Do not leave the long URL field empty. <a href="/login">Login</a>');
+    return res.status(400).send('Do not leave the long URL field empty. <a href="/login">Login</a>');
   }
   if (!urlDatabase[shortURL]) {
-    res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
+    return res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
   }
   if (user !== urlDatabase[shortURL].userID) {
-    res.status(401).send('This URL does not belong to this account. <a href="/urls">Main page</a>');
+    return res.status(401).send('This URL does not belong to this account. <a href="/urls">Main page</a>');
   } else {
     urlDatabase[shortURL].longURL = longURL;
-    res.redirect("/urls");
+    return res.redirect("/urls");
   }
 });
 
@@ -168,16 +170,16 @@ app.delete("/urls/:id", (req, res) => {
   const user = req.session.user_id;
   const shortURL = req.params.id;
   if (!user) {
-    res.status(403).send('Users must login to edit URL. <a href="/login">Login</a>');
+    return res.status(403).send('Users must login to edit URL. <a href="/login">Login</a>');
   }
   if (!urlDatabase[shortURL]) {
-    res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
+    return res.status(404).send('This short URL does not exist. <a href="/urls">Main page</a>');
   }
   if (user !== urlDatabase[shortURL].userID) {
-    res.status(401).send('This URL does not belong to this account. <a href="/urls">Main page</a>');
+    return res.status(401).send('This URL does not belong to this account. <a href="/urls">Main page</a>');
   } else {
     delete urlDatabase[shortURL];
-    res.redirect("/urls");
+    return res.redirect("/urls");
   }
 });
 
@@ -187,13 +189,13 @@ app.post("/login", (req, res) => {
   const password = req.body.password;
   const user = getUserByEmail(email, users);
   if (!email || !password) {
-    res.status(400).send('Do not leave the email or password field empty. <a href="/login">Login</a>');
+    return res.status(400).send('Do not leave the email or password field empty. <a href="/login">Login</a>');
   }
   if (user && bcrypt.compareSync(password, user.password)) {
     req.session.user_id = user.id;
-    res.redirect("/urls");
+    return res.redirect("/urls");
   } else {
-    res.status(400).send('The email or password entered is incorrect. <a href="/login">Login</a>');
+    return res.status(400).send('The email or password entered is incorrect. <a href="/login">Login</a>');
   }
 });
 
@@ -203,23 +205,23 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
   const user = getUserByEmail(email, users);
   if (!email || !password) {
-    res.status(400).send('Do not leave the email or password field empty. <a href="/register">Register</a>');
+    return res.status(400).send('Do not leave the email or password field empty. <a href="/register">Register</a>');
   }
   if (!user) {
     const id = generateRandomString();
     const hashedPassword = bcrypt.hashSync(password, 10);
     users[id] = { id, email, password: hashedPassword };
     req.session.user_id = id;
-    res.redirect("/urls");
+    return res.redirect("/urls");
   } else {
-    res.status(400).send('An account already exist with this email. <a href="/register">Register</a>');
+    return res.status(400).send('An account already exist with this email. <a href="/register">Register</a>');
   }
 });
 
 // Post request to handle user logout
 app.post("/logout", (req, res) => {
   req.session = null;
-  res.redirect("/login");
+  return res.redirect("/login");
 });
 
 app.listen(PORT, () => {
